@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f8f5" />
+  <title>CalTrack — Tracker de Calorias</title>
+  <style>
+    :root{
+      --bg:#f7f8f5;
+      --card:#ffffff;
+      --text:#172018;
+      --muted:#7d857e;
+      --line:#e7ebe6;
+      --green:#6fa86f;
+      --green-dark:#4f8954;
+      --green-soft:#eaf3e8;
+      --orange:#f0a45d;
+      --red:#e47c72;
+      --shadow:0 12px 35px rgba(35,55,38,.07);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+    button,input,select{font:inherit}
+    button{cursor:pointer;border:0}
+    .app{width:100%;max-width:480px;margin:auto;min-height:100vh;padding-bottom:92px}
+    .screen{display:none;padding:24px 18px}
+    .screen.active{display:block}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .brand{font-weight:800;font-size:22px;letter-spacing:-.6px}
+    .brand span{color:var(--green)}
+    .date{font-size:13px;color:var(--muted);margin-top:3px}
+    .avatar{width:42px;height:42px;border-radius:50%;background:var(--green-soft);display:grid;place-items:center;color:var(--green-dark);font-weight:800}
+    .hero-card{background:var(--card);border-radius:30px;padding:26px 20px;box-shadow:var(--shadow);text-align:center}
+    .ring-wrap{width:235px;height:235px;margin:0 auto 20px;position:relative;display:grid;place-items:center}
+    .ring{width:235px;height:235px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--progress),#edf1ec 0)}
+    .ring::before{content:"";width:190px;height:190px;border-radius:50%;background:var(--card);position:absolute}
+    .ring-content{position:relative;z-index:1}
+    .ring-number{font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1}
+    .ring-label{font-size:14px;color:var(--muted);margin-top:7px}
+    .goal{font-size:13px;color:var(--muted)}
+    .goal strong{color:var(--text)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}
+    .stat{background:#f8faf7;border:1px solid var(--line);border-radius:18px;padding:14px 7px}
+    .stat-value{font-size:17px;font-weight:800}
+    .stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:25px 2px 12px}
+    .section-head h2{font-size:17px;margin:0}
+    .link-btn{background:none;color:var(--green-dark);font-size:13px;font-weight:700}
+    .meal-list{display:grid;gap:10px}
+    .meal{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:19px;padding:13px}
+    .meal-icon{width:42px;height:42px;border-radius:14px;background:var(--green-soft);display:grid;place-items:center;font-size:20px}
+    .meal-main{flex:1}
+    .meal-name{font-size:14px;font-weight:750}
+    .meal-detail{font-size:11px;color:var(--muted);margin-top:3px}
+    .meal-cal{font-size:14px;font-weight:800}
+    .empty{padding:20px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:18px;font-size:13px}
+    .fab{position:fixed;bottom:82px;right:max(20px,calc(50% - 220px));width:58px;height:58px;border-radius:20px;background:var(--green);color:white;font-size:29px;box-shadow:0 12px 25px rgba(79,137,84,.3);z-index:10}
+    .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:76px;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:9}
+    .nav-btn{background:none;color:#9aa19b;display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:650}
+    .nav-btn .ico{font-size:21px;line-height:1}
+    .nav-btn.active{color:var(--green-dark)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+    .card h2{font-size:17px;margin:0 0 5px}
+    .card p{font-size:12px;color:var(--muted);margin:0 0 18px;line-height:1.5}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field.full{grid-column:1/-1}
+    label{font-size:12px;font-weight:700;color:#5f675f}
+    input,select{width:100%;height:48px;border:1px solid var(--line);background:#fafbf9;border-radius:14px;padding:0 13px;outline:none;color:var(--text)}
+    input:focus,select:focus{border-color:var(--green)}
+    .option-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .option{padding:11px 5px;border:1px solid var(--line);border-radius:14px;background:#fafbf9;font-size:12px;font-weight:700;color:#626b62}
+    .option.active{background:var(--green-soft);border-color:#b9d4b8;color:var(--green-dark)}
+    .primary{width:100%;height:50px;background:var(--green);color:white;border-radius:15px;font-weight:800;margin-top:16px}
+    .secondary{height:45px;background:var(--green-soft);color:var(--green-dark);border-radius:14px;padding:0 15px;font-weight:750}
+    .result{background:linear-gradient(145deg,#eef6eb,#f9fbf8);border-radius:20px;padding:18px;margin-top:15px;display:none}
+    .result.show{display:block}
+    .result-row{display:flex;align-items:end;justify-content:space-between}
+    .result-number{font-size:35px;font-weight:850;letter-spacing:-1px}
+    .result-unit{font-size:12px;color:var(--muted);margin-bottom:7px}
+    .result-note{font-size:12px;color:#667066;line-height:1.5;margin-top:8px}
+    .profile-header{display:flex;align-items:center;gap:15px}
+    .profile-avatar{width:62px;height:62px;border-radius:20px;background:var(--green-soft);display:grid;place-items:center;font-size:27px}
+    .profile-name{font-size:18px;font-weight:800}
+    .profile-sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:17px}
+    .mini{background:#f8faf7;border-radius:15px;padding:12px;text-align:center}
+    .mini b{font-size:15px}
+    .mini span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(20,28,21,.35);z-index:20;align-items:end;justify-content:center}
+    .modal-backdrop.open{display:flex}
+    .modal{width:100%;max-width:480px;background:var(--bg);border-radius:28px 28px 0 0;padding:22px 18px 30px;max-height:90vh;overflow:auto}
+    .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .modal-top h2{font-size:19px;margin:0}
+    .close{width:34px;height:34px;border-radius:50%;background:#e9ede8;color:#687068;font-size:19px}
+    .quick-row{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin:13px 0}
+    .quick{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:12px;padding:9px 12px;font-size:11px;font-weight:700}
+    .toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,20px);background:#1d2820;color:#fff;padding:11px 15px;border-radius:13px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;z-index:40;white-space:nowrap}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .settings-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}
+    .settings-row:last-child{border-bottom:0}
+    .danger{color:#c8645c}
+    @media(min-width:600px){body{padding:18px 0}.app{border-radius:30px;box-shadow:0 20px 60px rgba(25,40,28,.1);background:var(--bg)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <main id="home" class="screen active">
+    <div class="topbar">
+      <div>
+        <div class="brand">Cal<span>Track</span></div>
+        <div class="date" id="today"></div>
+      </div>
+      <div class="avatar" id="avatar">CT</div>
+    </div>
+
+    <section class="hero-card">
+      <div class="ring-wrap">
+        <div class="ring" id="ring" style="--progress:0deg">
+          <div class="ring-content">
+            <div class="ring-number" id="consumed">0</div>
+            <div class="ring-label">kcal consumidas</div>
+          </div>
+        </div>
+      </div>
+      <div class="goal">Meta diária: <strong id="goalText">2.000 kcal</strong></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-value" id="remaining">2.000</div><div class="stat-label">restantes</div></div>
+        <div class="stat"><div class="stat-value" id="percent">0%</div><div class="stat-label">da meta</div></div>
+        <div class="stat"><div class="stat-value" id="mealsCount">0</div><div class="stat-label">refeições</div></div>
+      </div>
+    </section>
+
+    <div class="section-head"><h2>Refeições de hoje</h2><button class="link-btn" onclick="openModal()">+ Adicionar</button></div>
+    <div id="mealList" class="meal-list"></div>
+  </main>
+
+  <main id="profile" class="screen">
+    <div class="topbar">
+      <div><div class="brand">Meu perfil</div><div class="date">Dados para calcular sua meta</div></div>
+      <div class="avatar">⚙</div>
+    </div>
+
+    <section class="card">
+      <div class="profile-header">
+        <div class="profile-avatar">👤</div>
+        <div><div class="profile-name" id="profileName">Seu perfil</div><div class="profile-sub" id="profileGoal">Defina seus dados abaixo</div></div>
+      </div>
+      <div class="mini-grid">
+        <div class="mini"><b id="pWeight">—</b><span>peso</span></div>
+        <div class="mini"><b id="pHeight">—</b><span>altura</span></div>
+        <div class="mini"><b id="pAge">—</b><span>idade</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Informações pessoais</h2>
+      <p>Preencha os dados para estimar suas calorias de manutenção e ajustar sua meta.</p>
+      <div class="form-grid">
+        <div class="field"><label>Idade</label><input id="age" type="number" min="13" max="100" placeholder="Ex.: 25"></div>
+        <div class="field"><label>Peso (kg)</label><input id="weight" type="number" min="30" max="300" step=".1" placeholder="Ex.: 70"></div>
+        <div class="field"><label>Altura (cm)</label><input id="height" type="number" min="120" max="230" placeholder="Ex.: 175"></div>
+        <div class="field"><label>Sexo</label>
+          <select id="sex"><option value="male">Masculino</option><option value="female">Feminino</option></select>
+        </div>
+        <div class="field full"><label>Nível de atividade</label>
+          <select id="activity">
+            <option value="1.2">Sedentário — pouco ou nenhum exercício</option>
+            <option value="1.375">Levemente ativo — 1 a 3 dias/semana</option>
+            <option value="1.55" selected>Moderadamente ativo — 3 a 5 dias/semana</option>
+            <option value="1.725">Muito ativo — 6 a 7 dias/semana</option>
+            <option value="1.9">Extremamente ativo — treino intenso</option>
+          </select>
+        </div>
+        <div class="field full"><label>Objetivo</label>
+          <div class="option-grid" id="goalOptions">
+            <button class="option" data-goal="lose">Emagrecer</button>
+            <button class="option active" data-goal="maintain">Manter</button>
+            <button class="option" data-goal="gain">Ganhar</button>
+          </div>
+        </div>
+      </div>
+      <button class="primary" onclick="calculateGoal()">Calcular minha meta</button>
+      <div class="result" id="result">
+        <div class="result-row"><div><div style="font-size:12px;color:#687168">Sua meta sugerida</div><div class="result-number" id="resultNumber">2.000</div></div><div class="result-unit">kcal / dia</div></div>
+        <div class="result-note" id="resultNote"></div>
+      </div>
+    </section>
+  </main>
+
+  <main id="settings" class="screen">
+    <div class="topbar"><div><div class="brand">Configurações</div><div class="date">Personalize seu CalTrack</div></div><div class="avatar">⚙</div></div>
+    <section class="card">
+      <h2>Resumo</h2>
+      <div class="settings-row"><span>Meta atual</span><strong id="settingsGoal">2.000 kcal</strong></div>
+      <div class="settings-row"><span>Objetivo</span><strong id="settingsObjective">Manter peso</strong></div>
+      <div class="settings-row"><span>Calorias registradas</span><strong id="settingsConsumed">0 kcal</strong></div>
+    </section>
+    <section class="card">
+      <h2>Dados</h2>
+      <div class="settings-row"><span>Editar informações</span><button class="secondary" onclick="showScreen('profile')">Editar</button></div>
+      <div class="settings-row"><span>Limpar refeições de hoje</span><button class="link-btn danger" onclick="clearMeals()">Limpar</button></div>
+    </section>
+    <section class="card">
+      <p style="margin:0">Este protótipo calcula uma estimativa de necessidade calórica. Resultados reais variam conforme metabolismo, rotina e condições individuais.</p>
+    </section>
+  </main>
+
+  <button class="fab" onclick="openModal()">+</button>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home"><span class="ico">⌂</span>Hoje</button>
+    <button class="nav-btn" data-screen="profile"><span class="ico">◉</span>Perfil</button>
+    <button class="nav-btn" data-screen="settings"><span class="ico">⚙</span>Ajustes</button>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="backdropClose(event)">
+  <div class="modal">
+    <div class="modal-top"><h2>Adicionar refeição</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div class="field"><label>Nome da refeição</label><input id="mealName" placeholder="Ex.: Frango com arroz"></div>
+    <div class="field" style="margin-top:12px"><label>Calorias</label><input id="mealCalories" type="number" min="1" placeholder="Ex.: 450"></div>
+    <div class="quick-row">
+      <button class="quick" onclick="quickMeal('🍳','Café da manhã',350)">🍳 Café · 350</button>
+      <button class="quick" onclick="quickMeal('🥗','Almoço',550)">🥗 Almoço · 550</button>
+      <button class="quick" onclick="quickMeal('🍎','Lanche',180)">🍎 Lanche · 180</button>
+      <button class="quick" onclick="quickMeal('🍝','Jantar',500)">🍝 Jantar · 500</button>
+    </div>
+    <button class="primary" onclick="addMeal()">Adicionar ao diário</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const state = {
+    goal: localStorage.getItem('ct_goal') || 'maintain',
+    target: Number(localStorage.getItem('ct_target')) || 2000,
+    meals: JSON.parse(localStorage.getItem('ct_meals') || '[]'),
+    profile: JSON.parse(localStorage.getItem('ct_profile') || '{}')
+  };
+
+  const goalNames = {lose:'Emagrecer', maintain:'Manter peso', gain:'Ganhar peso'};
+  const icons = ['🍽️','🥗','🍳','🍎','🍝','🥪','🍲'];
+
+  function fmt(n){ return Math.round(n).toLocaleString('pt-BR'); }
+  function save(){
+    localStorage.setItem('ct_goal', state.goal);
+    localStorage.setItem('ct_target', state.target);
+    localStorage.setItem('ct_meals', JSON.stringify(state.meals));
+    localStorage.setItem('ct_profile', JSON.stringify(state.profile));
+  }
+
+  function render(){
+    const consumed = state.meals.reduce((sum,m)=>sum+Number(m.calories),0);
+    const pct = state.target ? Math.round(consumed/state.target*100) : 0;
+    const ringPct = Math.min(consumed/state.target,1)*360;
+    document.getElementById('consumed').textContent=fmt(consumed);
+    document.getElementById('remaining').textContent=fmt(Math.max(state.target-consumed,0));
+    document.getElementById('percent').textContent=pct+'%';
+    document.getElementById('mealsCount').textContent=state.meals.length;
+    document.getElementById('goalText').textContent=fmt(state.target)+' kcal';
+    document.getElementById('ring').style.setProperty('--progress', ringPct+'deg');
+    document.getElementById('settingsGoal').textContent=fmt(state.target)+' kcal';
+    document.getElementById('settingsObjective').textContent=goalNames[state.goal];
+    document.getElementById('settingsConsumed').textContent=fmt(consumed)+' kcal';
+
+    const list=document.getElementById('mealList');
+    list.innerHTML=state.meals.length ? state.meals.map((m,i)=>`
+      <div class="meal">
+        <div class="meal-icon">${m.icon || icons[i%icons.length]}</div>
+        <div class="meal-main"><div class="meal-name">${escapeHtml(m.name)}</div><div class="meal-detail">${m.time || 'Hoje'}</div></div>
+        <div class="meal-cal">${fmt(m.calories)} kcal</div>
+        <button aria-label="Remover" onclick="removeMeal(${i})" style="background:none;color:#a2aaa3;font-size:18px;margin-left:2px">×</button>
+      </div>`).join('') : '<div class="empty">Ainda não há refeições registradas.<br>Toque no <b>+</b> para começar seu diário.</div>';
+
+    updateProfileUI();
+  }
+
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+
+  function updateProfileUI(){
+    const p=state.profile;
+    document.getElementById('pWeight').textContent=p.weight ? p.weight+' kg':'—';
+    document.getElementById('pHeight').textContent=p.height ? p.height+' cm':'—';
+    document.getElementById('pAge').textContent=p.age ? p.age+' anos':'—';
+    document.getElementById('profileName').textContent=p.age ? 'Seu perfil' : 'Seu perfil';
+    document.getElementById('profileGoal').textContent=goalNames[state.goal];
+    if(p.age) document.getElementById('age').value=p.age;
+    if(p.weight) document.getElementById('weight').value=p.weight;
+    if(p.height) document.getElementById('height').value=p.height;
+    if(p.sex) document.getElementById('sex').value=p.sex;
+    if(p.activity) document.getElementById('activity').value=p.activity;
+    setGoalButtons();
+  }
+
+  function setGoalButtons(){
+    document.querySelectorAll('.option').forEach(b=>b.classList.toggle('active',b.dataset.goal===state.goal));
+  }
+
+  document.querySelectorAll('.option').forEach(b=>b.addEventListener('click',()=>{
+    state.goal=b.dataset.goal; setGoalButtons();
+  }));
+
+  function calculateGoal(){
+    const age=Number(document.getElementById('age').value);
+    const weight=Number(document.getElementById('weight').value);
+    const height=Number(document.getElementById('height').value);
+    const sex=document.getElementById('sex').value;
+    const activity=Number(document.getElementById('activity').value);
+    if(!age || !weight || !height){
+      showToast('Preencha idade, peso e altura.');
+      return;
+    }
+    // Mifflin-St Jeor: estimativa de BMR + fator de atividade.
+    const bmr = sex==='male'
+      ? (10*weight + 6.25*height - 5*age + 5)
+      : (10*weight + 6.25*height - 5*age - 161);
+    const tdee=bmr*activity;
+    let target=tdee;
+    if(state.goal==='lose') target=tdee-400;
+    if(state.goal==='gain') target=tdee+300;
+    target=Math.max(1200,Math.round(target/10)*10);
+
+    state.target=target;
+    state.profile={age,weight,height,sex,activity};
+    save(); render();
+
+    document.getElementById('resultNumber').textContent=fmt(target);
+    document.getElementById('resultNote').textContent =
+      state.goal==='lose'
+      ? 'Foi aplicado um déficit moderado de aproximadamente 400 kcal/dia para favorecer a perda de peso.'
+      : state.goal==='gain'
+      ? 'Foi aplicado um superávit moderado de aproximadamente 300 kcal/dia para favorecer o ganho de peso.'
+      : 'Sua meta foi baseada na estimativa de manutenção, sem déficit ou superávit.';
+    document.getElementById('result').classList.add('show');
+    showToast('Meta atualizada!');
+  }
+
+  function openModal(){document.getElementById('modalBackdrop').classList.add('open');setTimeout(()=>document.getElementById('mealName').focus(),100)}
+  function closeModal(){document.getElementById('modalBackdrop').classList.remove('open')}
+  function backdropClose(e){if(e.target.id==='modalBackdrop')closeModal()}
+  function quickMeal(icon,name,cal){document.getElementById('mealName').value=name;document.getElementById('mealCalories').value=cal;document.getElementById('mealName').dataset.icon=icon}
+  function addMeal(){
+    const name=document.getElementById('mealName').value.trim();
+    const calories=Number(document.getElementById('mealCalories').value);
+    if(!name || !calories){showToast('Informe nome e calorias.');return}
+    state.meals.push({name,calories,icon:document.getElementById('mealName').dataset.icon || '🍽️',time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+    save();render();closeModal();
+    document.getElementById('mealName').value='';document.getElementById('mealCalories').value='';delete document.getElementById('mealName').dataset.icon;
+    showToast('Refeição adicionada!');
+  }
+  function removeMeal(i){state.meals.splice(i,1);save();render();showToast('Refeição removida.')}
+  function clearMeals(){if(confirm('Limpar todas as refeições de hoje?')){state.meals=[];save();render();showToast('Diário limpo.')}}
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),2200)}
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
+
+  const now=new Date();
+  document.getElementById('today').textContent=now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  render();
+</script>
+</body>
+</html>
