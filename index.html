@@ -26,7 +26,6 @@
       --gradient-start:#eef6eb;
       --gradient-end:#f9fbf8;
     }
-
     :root.dark{
       --bg:#101510;
       --card:#181e18;
@@ -36,9 +35,6 @@
       --green:#7fbd7f;
       --green-dark:#9bd39b;
       --green-soft:#203423;
-      --orange:#f3ad69;
-      --red:#e88a80;
-      --shadow:0 14px 38px rgba(0,0,0,.28);
       --nav-bg:rgba(24,30,24,.94);
       --input-bg:#121812;
       --soft-bg:#1d251d;
@@ -47,15 +43,15 @@
       --gradient-end:#172017;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);transition:background-color .45s ease,color .45s ease}
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);transition:background-color .4s ease,color .4s ease}
     button,input,select{font:inherit}
     button{cursor:pointer;border:0}
     button,input,select,.card,.hero-card,.meal,.stat,.mini,.modal,.bottom-nav,.option,.quick,.close,.result,.empty,.avatar,.profile-avatar{
-      transition:background-color .35s ease,border-color .35s ease,color .35s ease,box-shadow .35s ease,transform .3s cubic-bezier(.22,1,.36,1),opacity .3s ease;
+      transition:background-color .3s ease,border-color .3s ease,color .3s ease,box-shadow .3s ease,transform .25s cubic-bezier(.22,1,.36,1),opacity .25s ease;
     }
-    button:active{transform:scale(.96)}
-    @media (prefers-reduced-motion: reduce){
-      *,*::before,*::after{scroll-behavior:auto !important;transition:none !important;animation:none !important}
+    button:active{transform:scale(.97)}
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{transition:none !important;animation:none !important;scroll-behavior:auto !important}
     }
     .app{width:100%;max-width:480px;margin:auto;min-height:100vh;padding-bottom:92px}
     .screen{display:none;padding:24px 18px}
@@ -67,7 +63,12 @@
     .avatar{width:42px;height:42px;border-radius:50%;background:var(--green-soft);display:grid;place-items:center;color:var(--green-dark);font-weight:800}
     .hero-card{background:var(--card);border-radius:30px;padding:26px 20px;box-shadow:var(--shadow);text-align:center}
     .ring-wrap{width:235px;height:235px;margin:0 auto 20px;position:relative;display:grid;place-items:center}
-    .ring{width:235px;height:235px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--progress),var(--ring-track) 0);transition:--progress .7s cubic-bezier(.22,1,.36,1)}
+    @property --progress{
+      syntax:'<angle>';
+      inherits:false;
+      initial-value:0deg;
+    }
+    .ring{width:235px;height:235px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--progress),var(--ring-track) 0);transition:--progress .65s cubic-bezier(.22,1,.36,1)}
     .ring::before{content:"";width:190px;height:190px;border-radius:50%;background:var(--card);position:absolute}
     .ring-content{position:relative;z-index:1}
     .ring-number{font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1}
@@ -91,7 +92,7 @@
     .empty{padding:20px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:18px;font-size:13px}
     .fab{position:fixed;bottom:82px;right:max(20px,calc(50% - 220px));width:58px;height:58px;border-radius:20px;background:var(--green);color:white;font-size:29px;box-shadow:0 12px 25px rgba(79,137,84,.3);z-index:10}
     .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:76px;background:var(--nav-bg);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:9}
-    .nav-btn{background:none;color:#9aa59b;display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:650}
+    .nav-btn{background:none;color:#9aa19b;display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:650}
     .nav-btn .ico{font-size:21px;line-height:1}
     .nav-btn.active{color:var(--green-dark)}
     .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
@@ -125,9 +126,9 @@
     .mini{background:var(--soft-bg);border-radius:15px;padding:12px;text-align:center}
     .mini b{font-size:15px}
     .mini span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
-    .modal-backdrop{display:none;position:fixed;inset:0;opacity:0;transition:opacity .3s ease;background:rgba(0,0,0,.48);z-index:20;align-items:end;justify-content:center}
-    .modal-backdrop.open{display:flex;opacity:1}
-    .modal{width:100%;max-width:480px;background:var(--bg);transform:translateY(18px);border-radius:28px 28px 0 0;padding:22px 18px 30px;max-height:90vh;overflow:auto}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(20,28,21,.35);z-index:20;align-items:end;justify-content:center}
+    .modal-backdrop.open{display:flex}
+    .modal{width:100%;max-width:480px;background:var(--bg);border-radius:28px 28px 0 0;padding:22px 18px 30px;max-height:90vh;overflow:auto;transform:translateY(18px)}
     .modal-backdrop.open .modal{transform:translateY(0)}
     .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
     .modal-top h2{font-size:19px;margin:0}
@@ -276,10 +277,24 @@
     goal: localStorage.getItem('ct_goal') || 'maintain',
     target: Number(localStorage.getItem('ct_target')) || 2000,
     meals: JSON.parse(localStorage.getItem('ct_meals') || '[]'),
-    profile: JSON.parse(localStorage.getItem('ct_profile') || '{}')
+    profile: JSON.parse(localStorage.getItem('ct_profile') || '{}'),
+    darkMode: localStorage.getItem('ct_darkMode') === 'true'
   };
 
-  applyTheme();
+  function applyTheme(){
+    document.documentElement.classList.toggle('dark', state.darkMode);
+    const btn=document.getElementById('themeToggle');
+    if(btn) btn.textContent=state.darkMode ? 'Desativar' : 'Ativar';
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', state.darkMode ? '#101510' : '#f7f8f5');
+  }
+
+  function toggleDarkMode(){
+    state.darkMode=!state.darkMode;
+    localStorage.setItem('ct_darkMode', String(state.darkMode));
+    applyTheme();
+    showToast(state.darkMode ? 'Modo escuro ativado.' : 'Modo claro ativado.');
+  }
 
   const goalNames = {lose:'Emagrecer', maintain:'Manter peso', gain:'Ganhar peso'};
   const icons = ['🍽️','🥗','🍳','🍎','🍝','🥪','🍲'];
