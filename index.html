@@ -294,7 +294,16 @@
     localStorage.setItem('ct_darkMode', String(state.darkMode));
     applyTheme();
     showToast(state.darkMode ? 'Modo escuro ativado.' : 'Modo claro ativado.');
-  }
+    const quickButtons = document.querySelectorAll(".quick");
+  
+  // 2. Define a cor baseado no modo escuro
+    const textColor = state.darkMode ? "white" : "black";
+  
+  // 3. Passa por cada um dos botões aplicando a cor
+    quickButtons.forEach(button => {
+      button.style.color = textColor;
+  });
+}
 
   const goalNames = {lose:'Emagrecer', maintain:'Manter peso', gain:'Ganhar peso'};
   const icons = ['🍽️','🥗','🍳','🍎','🍝','🥪','🍲'];
