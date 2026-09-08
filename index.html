@@ -273,6 +273,10 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    toggleDarkMode();
+});
+  
   const state = {
     goal: localStorage.getItem('ct_goal') || 'maintain',
     target: Number(localStorage.getItem('ct_target')) || 2000,
